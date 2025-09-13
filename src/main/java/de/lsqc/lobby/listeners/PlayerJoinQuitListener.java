@@ -2,13 +2,16 @@ package de.lsqc.lobby.listeners;
 
 import java.util.Calendar;
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import de.lsqc.lobby.Lobby;
 import lombok.NonNull;
 
 public class PlayerJoinQuitListener implements Listener
@@ -36,8 +39,17 @@ public class PlayerJoinQuitListener implements Listener
 
         int year = Calendar.getInstance().get(Calendar.YEAR);
         player.setLevel(year);
-        player.setExp(100);
+        player.setExp(1);
 
         player.getInventory().setHeldItemSlot(4);
+
+        Location spawnLocation = Lobby.getInstance().getLocationManager().getLocation("spawn");
+
+        if (spawnLocation != null)
+        {
+            Bukkit.getRegionScheduler().execute(Lobby.getInstance(), player.getLocation(), () -> {
+                player.teleportAsync(spawnLocation);
+            });
+        }
     }
 }
