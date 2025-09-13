@@ -3,11 +3,11 @@ package de.lsqc.lobby;
 import java.io.File;
 
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import de.lsqc.lobby.listeners.PlayerJoinQuitListener;
+import de.lsqc.lobby.utils.LocationManager;
 import lombok.Getter;
 
 public final class Lobby extends JavaPlugin
@@ -17,7 +17,9 @@ public final class Lobby extends JavaPlugin
     private static Lobby instance;
 
     @Getter
-    private YamlConfiguration config;
+    private LocationManager locationManager; 
+
+    private File configFile, locationsFile;
 
     @Override
     public void onEnable()
@@ -28,18 +30,23 @@ public final class Lobby extends JavaPlugin
         this.registerListeners();
 
         this.getDataFolder().mkdirs();
+        this.configFile = new File(getDataFolder(), "config.yml");
+        this.locationsFile = new File(getDataFolder(), "locations.yml");
 
-        this.config = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "config.yml"));
+        this.locationManager = new LocationManager(this.locationsFile);
+        this.locationManager.loadConfig();
+
     }
 
     @Override
     public void onDisable()
     {
+        this.locationManager.saveConfig();
     }
 
     public void registerListeners()
     {
-    
+
         PluginManager pluginManager = Bukkit.getPluginManager();
         pluginManager.registerEvents(new PlayerJoinQuitListener(), this);
     }
