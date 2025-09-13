@@ -1,0 +1,8 @@
+name: LobbySystem
+version: ${version}+${git.commit.id.abbrev}
+author: lsqc
+main: de.lsqc.lobby.Lobby
+folia-supported: true
+
+commands:
+
