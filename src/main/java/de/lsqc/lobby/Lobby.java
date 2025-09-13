@@ -17,7 +17,7 @@ public final class Lobby extends JavaPlugin
     private static Lobby instance;
 
     @Getter
-    private YamlConfiguration yamlConfig;
+    private YamlConfiguration config;
 
     @Override
     public void onEnable()
@@ -29,7 +29,7 @@ public final class Lobby extends JavaPlugin
 
         this.getDataFolder().mkdirs();
 
-        this.yamlConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "config.yml"));
+        this.config = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "config.yml"));
     }
 
     @Override
