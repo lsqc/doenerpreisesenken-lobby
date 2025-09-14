@@ -15,6 +15,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import de.lsqc.lobby.Lobby;
+import de.lsqc.lobby.utils.VelocityUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -73,5 +75,11 @@ public final class PlayerInteractListener implements Listener
         Sound s = CLICK_SOUNDS[randomClickSoundIndex];
 
         player.playSound(player.getLocation(), s, 1.0F, 1.0F);
+
+        if (event.getCurrentItem().getType() == Material.IRON_SWORD)
+        {
+            player.sendMessage(Component.text("Verbinde...").color(NamedTextColor.GREEN));
+            VelocityUtils.sendPlayer(player, String.valueOf(Lobby.getInstance().getConfig().get("survival_server")));
+        }
     }
 }
