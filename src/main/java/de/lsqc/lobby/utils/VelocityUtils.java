@@ -16,14 +16,13 @@ public class VelocityUtils
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         DataOutputStream dataOut = new DataOutputStream(out);
         try {
-            dataOut.writeUTF("connect");
+            dataOut.writeUTF("Connect");
             dataOut.writeUTF(server);
-
         }
         catch (IOException e) 
         {
             e.printStackTrace();
         }
-        player.sendPluginMessage(Lobby.getInstance(), "velocity:player", out.toByteArray());
+        player.sendPluginMessage(Lobby.getInstance(), "BungeeCord", out.toByteArray());
     }
 }
