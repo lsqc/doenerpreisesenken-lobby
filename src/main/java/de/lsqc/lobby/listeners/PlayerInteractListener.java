@@ -70,6 +70,7 @@ public final class PlayerInteractListener implements Listener
 
         if (!(event.getWhoClicked() instanceof Player player)) return;
         if (!event.getView().getTitle().equals(NAVIGATION_INVENTORY_TITLE)) return;
+        if (event.getCurrentItem() == null) return;
 
         int randomClickSoundIndex = new Random().nextInt(CLICK_SOUNDS.length);
         Sound s = CLICK_SOUNDS[randomClickSoundIndex];
