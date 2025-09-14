@@ -14,6 +14,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
 public final class PlayerInteractListener implements Listener
 {
@@ -45,7 +46,7 @@ public final class PlayerInteractListener implements Listener
 
         ItemStack survival = new ItemStack(Material.IRON_SWORD);
         meta = survival.getItemMeta();
-        meta.displayName(Component.text("Survival").color(NamedTextColor.RED));
+        meta.displayName(Component.text("Survival").color(NamedTextColor.RED).decoration(TextDecoration.ITALIC, false).decorate(TextDecoration.BOLD));
         survival.setItemMeta(meta);
 
         inventory.setItem(13, survival);
