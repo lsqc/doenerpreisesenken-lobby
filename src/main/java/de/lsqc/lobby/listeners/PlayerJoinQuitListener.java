@@ -65,24 +65,7 @@ public final class PlayerJoinQuitListener implements Listener
         player.setHealth(randomHealth);
 
         player.getInventory().setHeldItemSlot(4);
-
-        int randomItemIndex = new Random().nextInt(NAVIGATOR_MATERIALS.length);
-        int randomColorIndex = new Random().nextInt(NAVIGATOR_COLORS.length);
-
-        // navigator item 
-        ItemStack navigator = new ItemStack(NAVIGATOR_MATERIALS[randomItemIndex]);
-        ItemMeta meta = navigator.getItemMeta();
-        meta.displayName(
-                Component.text("Navigator").decoration(TextDecoration.ITALIC, false).decorate(TextDecoration.BOLD).color(TextColor.fromHexString(NAVIGATOR_COLORS[randomColorIndex]))
-                .append(Component.text("§r ● ").color(NamedTextColor.DARK_GRAY).decoration(TextDecoration.BOLD, false)
-                    .append(Component.text("(rechtsklick)").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC)))
-        );
-        meta.setEnchantable(1);
-
-        navigator.addUnsafeEnchantment(Enchantment.EFFICIENCY, 1); // TODO fix
-        navigator.setItemMeta(meta);
-
-        player.getInventory().setItem(4, navigator);
+        player.getInventory().setItem(4, randomNavigatorItem());
 
         Location spawnLocation = Lobby.getInstance().getLocationManager().getLocation("spawn");
 
@@ -92,5 +75,25 @@ public final class PlayerJoinQuitListener implements Listener
                 player.teleportAsync(spawnLocation);
             });
         }
+    }
+
+    public static ItemStack randomNavigatorItem()
+    {
+        int randomItemIndex = new Random().nextInt(NAVIGATOR_MATERIALS.length);
+        int randomColorIndex = new Random().nextInt(NAVIGATOR_COLORS.length);
+
+        ItemStack navigator = new ItemStack(NAVIGATOR_MATERIALS[randomItemIndex]);
+        ItemMeta meta = navigator.getItemMeta();
+        meta.displayName(
+                Component.text("Navigator").decoration(TextDecoration.ITALIC, false).decorate(TextDecoration.BOLD).color(TextColor.fromHexString(NAVIGATOR_COLORS[randomColorIndex]))
+                .append(Component.text("§r ● ").color(NamedTextColor.DARK_GRAY).decoration(TextDecoration.BOLD, false)
+                    .append(Component.text("(rechtsklick)").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC)))
+                );
+        meta.setEnchantable(1);
+
+        navigator.addUnsafeEnchantment(Enchantment.EFFICIENCY, 1); // TODO fix
+        navigator.setItemMeta(meta);
+
+        return navigator;
     }
 }
