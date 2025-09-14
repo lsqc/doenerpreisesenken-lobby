@@ -18,7 +18,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 public final class PlayerInteractListener implements Listener
 {
 
-    public static final Material PLACEHOLDER_ITEM_TYPES[] = { Material.LIGHT_GRAY_STAINED_GLASS_PANE, Material.LIME_STAINED_GLASS_PANE, Material.ORANGE_STAINED_GLASS_PANE, Material.PURPLE_STAINED_GLASS_PANE };
+    public static final Material PLACEHOLDER_ITEM_TYPES[] = { Material.GREEN_STAINED_GLASS_PANE, Material.LIME_STAINED_GLASS_PANE, Material.ORANGE_STAINED_GLASS_PANE, Material.PURPLE_STAINED_GLASS_PANE, Material.CYAN_STAINED_GLASS_PANE };
 
     @EventHandler
     public void onInteract(final PlayerInteractEvent event)
