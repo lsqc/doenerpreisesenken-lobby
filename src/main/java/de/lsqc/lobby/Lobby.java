@@ -6,7 +6,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import de.lsqc.lobby.listeners.PlayerInteractListener;
 import de.lsqc.lobby.listeners.PlayerJoinQuitListener;
+import de.lsqc.lobby.listeners.PlayerProtectionListener;
+import de.lsqc.lobby.listeners.WorldProtectionListener;
 import de.lsqc.lobby.utils.LocationManager;
 import lombok.Getter;
 
@@ -48,7 +51,11 @@ public final class Lobby extends JavaPlugin
     {
 
         PluginManager pluginManager = Bukkit.getPluginManager();
+
         pluginManager.registerEvents(new PlayerJoinQuitListener(), this);
+        pluginManager.registerEvents(new WorldProtectionListener(), this);
+        pluginManager.registerEvents(new PlayerProtectionListener(), this);
+        pluginManager.registerEvents(new PlayerInteractListener(), this);
     }
 
     public void registerCommands()
