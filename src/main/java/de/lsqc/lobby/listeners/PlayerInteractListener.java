@@ -98,6 +98,7 @@ public final class PlayerInteractListener implements Listener
         else if (Objects.equals(event.getCurrentItem().getItemMeta().displayName(), Component.text("Spawn").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false).decorate(TextDecoration.BOLD)))
         {
             PlayerJoinQuitListener.teleportToSpawn(player);
+            player.closeInventory();
         }
     }
 }
