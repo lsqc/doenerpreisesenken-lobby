@@ -67,6 +67,11 @@ public final class PlayerJoinQuitListener implements Listener
         player.getInventory().setHeldItemSlot(4);
         player.getInventory().setItem(4, randomNavigatorItem());
 
+        teleportToSpawn(player);
+    }
+
+    public static void teleportToSpawn(Player player)
+    {
         Location spawnLocation = Lobby.getInstance().getLocationManager().getLocation("spawn");
 
         if (spawnLocation != null)

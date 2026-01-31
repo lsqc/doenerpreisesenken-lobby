@@ -1,7 +1,9 @@
 package de.lsqc.lobby.listeners;
 
+import java.util.Objects;
 import java.util.Random;
 
+import de.lsqc.lobby.utils.HeadUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -37,7 +39,6 @@ public final class PlayerInteractListener implements Listener
         if (event.getItem() == null) return;
         if (!event.getItem().displayName().toString().contains("Navigator")) return;
 
-
         Inventory inventory = Bukkit.createInventory(null, 3*9, NAVIGATION_INVENTORY_TITLE);
 
         int randomIndex = new Random().nextInt(PLACEHOLDER_ITEM_TYPES.length);
@@ -54,12 +55,22 @@ public final class PlayerInteractListener implements Listener
             inventory.setItem(i, placeholder);
         }
 
-        ItemStack survival = new ItemStack(Material.IRON_SWORD);
+        ItemStack survival = new ItemStack(Material.CAMPFIRE), spawn = HeadUtil.createCustomPlayerHeadFromUrl(HeadUtil.SPAWNER_TEXTURE_URL), tv = HeadUtil.createCustomPlayerHeadFromUrl(HeadUtil.TV_TEXTURE_URL);
         meta = survival.getItemMeta();
         meta.displayName(Component.text("Survival").color(NamedTextColor.RED).decoration(TextDecoration.ITALIC, false).decorate(TextDecoration.BOLD));
         survival.setItemMeta(meta);
 
+        meta = spawn.getItemMeta();
+        meta.displayName(Component.text("Spawn").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false).decorate(TextDecoration.BOLD));
+        spawn.setItemMeta(meta);
+
+        meta = tv.getItemMeta();
+        meta.displayName(Component.text("???").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false).decorate(TextDecoration.BOLD));
+        tv.setItemMeta(meta);
+
+        inventory.setItem(10, spawn);
         inventory.setItem(13, survival);
+        inventory.setItem(16, tv);
 
         event.getPlayer().openInventory(inventory);
     }
@@ -72,15 +83,21 @@ public final class PlayerInteractListener implements Listener
         if (!event.getView().getTitle().equals(NAVIGATION_INVENTORY_TITLE)) return;
         if (event.getCurrentItem() == null) return;
 
+        event.setCancelled(true);
+
         int randomClickSoundIndex = new Random().nextInt(CLICK_SOUNDS.length);
         Sound s = CLICK_SOUNDS[randomClickSoundIndex];
 
         player.playSound(player.getLocation(), s, 1.0F, 1.0F);
 
-        if (event.getCurrentItem().getType() == Material.IRON_SWORD)
+        if (event.getCurrentItem().getType() == Material.CAMPFIRE)
         {
             player.sendMessage(Component.text("Verbinde...").color(NamedTextColor.GREEN));
             VelocityUtils.sendPlayer(player, String.valueOf(Lobby.getInstance().getConfig().get("survival_server")));
+        }
+        else if (Objects.equals(event.getCurrentItem().getItemMeta().displayName(), Component.text("Spawn").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false).decorate(TextDecoration.BOLD)))
+        {
+            PlayerJoinQuitListener.teleportToSpawn(player);
         }
     }
 }
