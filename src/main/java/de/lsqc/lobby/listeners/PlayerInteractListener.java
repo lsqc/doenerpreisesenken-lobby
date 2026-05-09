@@ -21,6 +21,7 @@ import de.lsqc.lobby.Lobby;
 import de.lsqc.lobby.utils.VelocityUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
 public final class PlayerInteractListener implements Listener
@@ -47,7 +48,7 @@ public final class PlayerInteractListener implements Listener
 
         ItemStack placeholder = new ItemStack(PLACEHOLDER_ITEM_TYPES[randomIndex]);
         ItemMeta meta = placeholder.getItemMeta();
-        meta.setDisplayName("§a");
+        meta.displayName(Component.text("§a"));
         placeholder.setItemMeta(meta);
 
         for (int i = 0; i < inventory.getSize(); i++)
@@ -92,7 +93,7 @@ public final class PlayerInteractListener implements Listener
 
         if (event.getCurrentItem().getType() == Material.CAMPFIRE)
         {
-            player.sendMessage(Component.text("Verbinde...").color(NamedTextColor.GREEN));
+            player.sendMessage(Component.text("§8[§e*§8] ").append(Component.text("Connecting...").color(TextColor.color(0xc2f9ff))));
             VelocityUtils.sendPlayer(player, String.valueOf(Lobby.getInstance().getConfig().get("survival_server")));
         }
         else if (Objects.equals(event.getCurrentItem().getItemMeta().displayName(), Component.text("Spawn").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false).decorate(TextDecoration.BOLD)))
