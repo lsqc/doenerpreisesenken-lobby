@@ -4,6 +4,8 @@ author: lsqc
 main: de.lsqc.lobby.Lobby
 folia-supported: true
 api-version: 1.20
+depend:
+  - ourCloudSystemAPI
 
 commands:
 

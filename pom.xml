@@ -45,7 +45,15 @@
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
         <version>1.18.40</version>
+        <scope>provided</scope>
     </dependency>
+    <dependency>
+        <groupId>com.lsdevcloud</groupId>
+        <artifactId>api</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <scope>provided</scope>
+    </dependency>
+
 </dependencies>
 <build>
     <plugins>
@@ -101,7 +109,7 @@
     <resources>
         <resource>
             <directory>src/main/resources</directory>
-            <filtering>true</filtering>
+            <filtering>false</filtering>
         </resource>
     </resources>
 </build>

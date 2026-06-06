@@ -1,9 +1,12 @@
 package de.lsqc.lobby.listeners;
 
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
+import com.lsdevcloud.cloud.api.core.CloudAPI;
+import com.lsdevcloud.cloud.api.group.Group;
+import com.lsdevcloud.cloud.api.service.Service;
 import de.lsqc.lobby.utils.HeadUtil;
+import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -24,82 +27,114 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
-public final class PlayerInteractListener implements Listener
+public final class PlayerInteractListener<T extends Service> implements Listener
 {
 
     public static final String NAVIGATION_INVENTORY_TITLE = "Navigation";
+    public static final String LOBBY_SWITCHER_INVENTORY_TITLE = "Lobbies";
     public static final Material PLACEHOLDER_ITEM_TYPES[] = { Material.GREEN_STAINED_GLASS_PANE, Material.LIME_STAINED_GLASS_PANE, Material.ORANGE_STAINED_GLASS_PANE, Material.PURPLE_STAINED_GLASS_PANE, Material.CYAN_STAINED_GLASS_PANE };
 
     public static final Sound CLICK_SOUNDS[] = { Sound.ENTITY_CAT_PURREOW, Sound.BLOCK_GLASS_BREAK, Sound.BLOCK_STONE_PLACE, Sound.BLOCK_BREWING_STAND_BREW, Sound.ENTITY_GHAST_HURT, Sound.ENTITY_ENDERMAN_TELEPORT };
 
     @EventHandler
+    @SneakyThrows
     public void onInteract(final PlayerInteractEvent event)
     {
-
         if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         if (event.getItem() == null) return;
-        if (!event.getItem().displayName().toString().contains("Navigator")) return;
-
-        Inventory inventory = Bukkit.createInventory(null, 3*9, NAVIGATION_INVENTORY_TITLE);
-
-        int randomIndex = new Random().nextInt(PLACEHOLDER_ITEM_TYPES.length);
-
-        event.getPlayer().getInventory().setItem(4, PlayerJoinQuitListener.randomNavigatorItem());
-
-        ItemStack placeholder = new ItemStack(PLACEHOLDER_ITEM_TYPES[randomIndex]);
-        ItemMeta meta = placeholder.getItemMeta();
-        meta.displayName(Component.text("§a"));
-        placeholder.setItemMeta(meta);
-
-        for (int i = 0; i < inventory.getSize(); i++)
+        if (event.getItem().displayName().toString().contains("Navigator"))
         {
-            inventory.setItem(i, placeholder);
+            Inventory inventory = Bukkit.createInventory(null, 3 * 9, NAVIGATION_INVENTORY_TITLE);
+
+            int randomIndex = new Random().nextInt(PLACEHOLDER_ITEM_TYPES.length);
+
+            event.getPlayer().getInventory().setItem(4, PlayerJoinQuitListener.randomNavigatorItem());
+
+            ItemStack placeholder = new ItemStack(PLACEHOLDER_ITEM_TYPES[randomIndex]);
+            ItemMeta meta = placeholder.getItemMeta();
+            meta.displayName(Component.text("§a"));
+            placeholder.setItemMeta(meta);
+
+            for (int i = 0; i < inventory.getSize(); i++)
+            {
+                inventory.setItem(i, placeholder);
+            }
+
+            ItemStack survival = new ItemStack(Material.CAMPFIRE), spawn = HeadUtil.createCustomPlayerHeadFromUrl(HeadUtil.SPAWNER_TEXTURE_URL), tv = HeadUtil.createCustomPlayerHeadFromUrl(HeadUtil.TV_TEXTURE_URL);
+            meta = survival.getItemMeta();
+            meta.displayName(Component.text("Survival").color(NamedTextColor.RED).decoration(TextDecoration.ITALIC, false).decorate(TextDecoration.BOLD));
+            survival.setItemMeta(meta);
+
+            meta = spawn.getItemMeta();
+            meta.displayName(Component.text("Spawn").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false).decorate(TextDecoration.BOLD));
+            spawn.setItemMeta(meta);
+
+            meta = tv.getItemMeta();
+            meta.displayName(Component.text("???").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false).decorate(TextDecoration.BOLD));
+            tv.setItemMeta(meta);
+
+            inventory.setItem(10, spawn);
+            inventory.setItem(13, survival);
+            inventory.setItem(16, tv);
+
+            event.getPlayer().openInventory(inventory);
         }
+        else if (Objects.requireNonNull(event.getItem().getItemMeta().displayName()).toString().contains("Lobbies"))
+        {
+            Inventory inventory = Bukkit.createInventory(null, 3 * 9, LOBBY_SWITCHER_INVENTORY_TITLE);
+            CloudAPI cloudAPI = CloudAPI.getInstance();;
 
-        ItemStack survival = new ItemStack(Material.CAMPFIRE), spawn = HeadUtil.createCustomPlayerHeadFromUrl(HeadUtil.SPAWNER_TEXTURE_URL), tv = HeadUtil.createCustomPlayerHeadFromUrl(HeadUtil.TV_TEXTURE_URL);
-        meta = survival.getItemMeta();
-        meta.displayName(Component.text("Survival").color(NamedTextColor.RED).decoration(TextDecoration.ITALIC, false).decorate(TextDecoration.BOLD));
-        survival.setItemMeta(meta);
+            List<Service> lobbyServices = new ArrayList<>(cloudAPI.getServiceProvider().getServices().values().stream().filter(service ->
+            {
+                Group group = cloudAPI.getGroupProvider().getGroups().get(service.getGroup());
+                return group != null && group.isLobbyGroup() && cloudAPI.getServiceProvider().isOnline(service.getUniqueId());
+            }).toList());
+            Collections.sort(lobbyServices, (a,b) -> a.getId() - b.getId());
+            for (int i = 0; i < lobbyServices.size(); i++)
+            {
+                ItemStack lobbyItem = HeadUtil.createCustomPlayerHeadFromUrl(HeadUtil.TV_TEXTURE_URL);
+                ItemMeta meta = lobbyItem.getItemMeta();
+                meta.displayName((Component.text(lobbyServices.get(i).getName()).decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, false)));
+                meta.lore(List.of(Component.text(""), Component.text("➜ ").color(TextColor.color(NamedTextColor.GRAY)).decoration(TextDecoration.ITALIC, false).append(Component.text("Click to join").color(TextColor.color(0xFFFF00)))));
 
-        meta = spawn.getItemMeta();
-        meta.displayName(Component.text("Spawn").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false).decorate(TextDecoration.BOLD));
-        spawn.setItemMeta(meta);
-
-        meta = tv.getItemMeta();
-        meta.displayName(Component.text("???").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false).decorate(TextDecoration.BOLD));
-        tv.setItemMeta(meta);
-
-        inventory.setItem(10, spawn);
-        inventory.setItem(13, survival);
-        inventory.setItem(16, tv);
-
-        event.getPlayer().openInventory(inventory);
+                lobbyItem.setItemMeta(meta);
+                inventory.setItem(9 + i, lobbyItem);
+            }
+            event.getPlayer().openInventory(inventory);
+        }
     }
 
     @EventHandler
     public void onClick(final InventoryClickEvent event)
     {
 
-        if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!event.getView().getTitle().equals(NAVIGATION_INVENTORY_TITLE)) return;
         if (event.getCurrentItem() == null) return;
-
-        event.setCancelled(true);
-
-        int randomClickSoundIndex = new Random().nextInt(CLICK_SOUNDS.length);
-        Sound s = CLICK_SOUNDS[randomClickSoundIndex];
-
-        player.playSound(player.getLocation(), s, 1.0F, 1.0F);
-
-        if (event.getCurrentItem().getType() == Material.CAMPFIRE)
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (event.getView().getTitle().equals(NAVIGATION_INVENTORY_TITLE))
         {
-            player.sendMessage(Component.text("§8[§e*§8] ").append(Component.text("Connecting...").color(TextColor.color(0xc2f9ff))));
-            VelocityUtils.sendPlayer(player, String.valueOf(Lobby.getInstance().getConfig().get("survival_server")));
+
+            event.setCancelled(true);
+
+            int randomClickSoundIndex = new Random().nextInt(CLICK_SOUNDS.length);
+            Sound s = CLICK_SOUNDS[randomClickSoundIndex];
+
+            player.playSound(player.getLocation(), s, 1.0F, 1.0F);
+
+            if (event.getCurrentItem().getType() == Material.CAMPFIRE)
+            {
+                player.sendMessage(Component.text("§8[§e*§8] ").append(Component.text("Connecting...").color(TextColor.color(0xc2f9ff))));
+                VelocityUtils.sendPlayer(player, String.valueOf(Lobby.getInstance().getConfig().get("survival_server")));
+            }
+            else if (Objects.equals(event.getCurrentItem().getItemMeta().displayName(), Component.text("Spawn").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false).decorate(TextDecoration.BOLD)))
+            {
+                PlayerJoinQuitListener.teleportToSpawn(player);
+                player.closeInventory();
+            }
         }
-        else if (Objects.equals(event.getCurrentItem().getItemMeta().displayName(), Component.text("Spawn").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false).decorate(TextDecoration.BOLD)))
+        else if (event.getView().getTitle().equals(LOBBY_SWITCHER_INVENTORY_TITLE))
         {
-            PlayerJoinQuitListener.teleportToSpawn(player);
-            player.closeInventory();
+            player.sendMessage(Component.text("§8[§e*§8] ").append(Component.text("Connecting to ").append(Component.text(event.getCurrentItem().getItemMeta().getDisplayName()).color(TextColor.color(NamedTextColor.AQUA)).append(Component.text("...").color(TextColor.color(NamedTextColor.GRAY))))));
+            VelocityUtils.sendPlayer(player, event.getCurrentItem().getItemMeta().getDisplayName());
         }
     }
 }

@@ -67,6 +67,13 @@ public final class PlayerJoinQuitListener implements Listener
         player.getInventory().setHeldItemSlot(4);
         player.getInventory().setItem(4, randomNavigatorItem());
 
+        ItemStack lobbySwitcher = new ItemStack(Material.CHEST_MINECART);
+        ItemMeta meta = lobbySwitcher.getItemMeta();
+        meta.displayName(Component.text("Lobbies").color(TextColor.color(0, 225, 255)).decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC,false));
+        lobbySwitcher.setItemMeta(meta);
+
+        player.getInventory().setItem(7, lobbySwitcher);
+
         teleportToSpawn(player);
     }
 
