@@ -50,19 +50,15 @@ public final class PlayerInteractListener<T extends Service> implements Listener
         {
             Inventory inventory = Bukkit.createInventory(null, 3 * 9, NAVIGATION_INVENTORY_TITLE);
 
-            int randomIndex = new Random().nextInt(PLACEHOLDER_ITEM_TYPES.length);
-
             event.getPlayer().getInventory().setItem(4, PlayerJoinQuitListener.randomNavigatorItem());
 
-            ItemStack placeholder = new ItemStack(PLACEHOLDER_ITEM_TYPES[randomIndex]);
-            ItemMeta meta = placeholder.getItemMeta();
-            meta.displayName(Component.text("§a"));
-            placeholder.setItemMeta(meta);
-
+            ItemStack placeholder = getPlaceholder();
             for (int i = 0; i < inventory.getSize(); i++)
             {
                 inventory.setItem(i, placeholder);
             }
+
+            ItemMeta meta = placeholder.getItemMeta();
 
             ItemStack survival = new ItemStack(Material.CAMPFIRE), spawn = HeadUtil.createCustomPlayerHeadFromUrl(HeadUtil.SPAWNER_TEXTURE_URL), tv = HeadUtil.createCustomPlayerHeadFromUrl(HeadUtil.TV_TEXTURE_URL);
             meta = survival.getItemMeta();
@@ -80,12 +76,18 @@ public final class PlayerInteractListener<T extends Service> implements Listener
             inventory.setItem(10, spawn);
             inventory.setItem(13, survival);
             inventory.setItem(16, tv);
-
             event.getPlayer().openInventory(inventory);
         }
         else if (Objects.requireNonNull(event.getItem().getItemMeta().displayName()).toString().contains("Lobbies"))
         {
             Inventory inventory = Bukkit.createInventory(null, 3 * 9, LOBBY_SWITCHER_INVENTORY_TITLE);
+
+            ItemStack placeholder = getPlaceholder();
+            for (int i = 0; i < inventory.getSize(); i++)
+            {
+                inventory.setItem(i, placeholder);
+            }
+
             CloudAPI cloudAPI = CloudAPI.getInstance();;
 
             List<Service> lobbyServices = new ArrayList<>(cloudAPI.getServiceProvider().getServices().values().stream().filter(service ->
@@ -95,10 +97,12 @@ public final class PlayerInteractListener<T extends Service> implements Listener
             }).toList());
 
             Collections.sort(lobbyServices, (a,b) -> a.getId() - b.getId());
+
             Properties props = new Properties();
             try (FileInputStream fis = new FileInputStream("server.properties")) {
                 props.load(fis);
             }
+
             for (int i = 0; i < lobbyServices.size(); i++)
             {
                 var lobbyService = lobbyServices.get(i);
@@ -137,7 +141,6 @@ public final class PlayerInteractListener<T extends Service> implements Listener
     @EventHandler
     public void onClick(final InventoryClickEvent event)
     {
-
         if (event.getCurrentItem() == null) return;
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
@@ -169,5 +172,16 @@ public final class PlayerInteractListener<T extends Service> implements Listener
             VelocityUtils.sendPlayer(player, event.getCurrentItem().getItemMeta().getLocalizedName());
             player.closeInventory();
         }
+    }
+
+    private ItemStack getPlaceholder()
+    {
+        int randomIndex = new Random().nextInt(PLACEHOLDER_ITEM_TYPES.length);
+        ItemStack placeholder = new ItemStack(PLACEHOLDER_ITEM_TYPES[randomIndex]);
+        ItemMeta meta = placeholder.getItemMeta();
+        meta.displayName(Component.text("§a"));
+        placeholder.setItemMeta(meta);
+
+        return placeholder;
     }
 }
