@@ -1,14 +1,17 @@
 package de.lsqc.lobby.listeners;
 
+import java.io.FileInputStream;
 import java.util.*;
 
 import com.lsdevcloud.cloud.api.core.CloudAPI;
 import com.lsdevcloud.cloud.api.group.Group;
 import com.lsdevcloud.cloud.api.service.Service;
+import com.lsdevcloud.cloud.spigot.GameService;
 import de.lsqc.lobby.utils.HeadUtil;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,6 +29,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.inventory.meta.SkullMeta;
 
 public final class PlayerInteractListener<T extends Service> implements Listener
 {
@@ -89,13 +93,39 @@ public final class PlayerInteractListener<T extends Service> implements Listener
                 Group group = cloudAPI.getGroupProvider().getGroups().get(service.getGroup());
                 return group != null && group.isLobbyGroup() && cloudAPI.getServiceProvider().isOnline(service.getUniqueId());
             }).toList());
+
             Collections.sort(lobbyServices, (a,b) -> a.getId() - b.getId());
+            Properties props = new Properties();
+            try (FileInputStream fis = new FileInputStream("server.properties")) {
+                props.load(fis);
+            }
             for (int i = 0; i < lobbyServices.size(); i++)
             {
-                ItemStack lobbyItem = HeadUtil.createCustomPlayerHeadFromUrl(HeadUtil.TV_TEXTURE_URL);
-                ItemMeta meta = lobbyItem.getItemMeta();
-                meta.displayName((Component.text(lobbyServices.get(i).getName()).decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, false)));
-                meta.lore(List.of(Component.text(""), Component.text("➜ ").color(TextColor.color(NamedTextColor.GRAY)).decoration(TextDecoration.ITALIC, false).append(Component.text("Click to join").color(TextColor.color(0xFFFF00)))));
+                var lobbyService = lobbyServices.get(i);
+                var isCurrent = props.getProperty("server-name").equals(lobbyService.getName());
+
+                ItemStack lobbyItem;
+                ItemMeta meta;
+
+                if (isCurrent)
+                {
+                    lobbyItem = new ItemStack(Material.PLAYER_HEAD);
+                    meta = lobbyItem.getItemMeta();
+                    ((SkullMeta) meta).setOwningPlayer(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()));
+                }
+                else
+                {
+                    lobbyItem = HeadUtil.createCustomPlayerHeadFromUrl(HeadUtil.TV_TEXTURE_URL);
+                    meta = lobbyItem.getItemMeta();
+                    meta.setLocalizedName(lobbyService.getName());
+                }
+
+                meta.displayName(Component.text(lobbyService.getName()).decoration(TextDecoration.ITALIC, false));
+                meta.lore(List.of(
+                        Component.text(""),
+                        Component.text("➜ ").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false)
+                                .append(Component.text(isCurrent ? "You are here!" : "Click to join").color(TextColor.color(0xFFFF00)))
+                ));
 
                 lobbyItem.setItemMeta(meta);
                 inventory.setItem(9 + i, lobbyItem);
@@ -110,11 +140,10 @@ public final class PlayerInteractListener<T extends Service> implements Listener
 
         if (event.getCurrentItem() == null) return;
         if (!(event.getWhoClicked() instanceof Player player)) return;
+
         if (event.getView().getTitle().equals(NAVIGATION_INVENTORY_TITLE))
         {
-
             event.setCancelled(true);
-
             int randomClickSoundIndex = new Random().nextInt(CLICK_SOUNDS.length);
             Sound s = CLICK_SOUNDS[randomClickSoundIndex];
 
@@ -124,6 +153,7 @@ public final class PlayerInteractListener<T extends Service> implements Listener
             {
                 player.sendMessage(Component.text("§8[§e*§8] ").append(Component.text("Connecting...").color(TextColor.color(0xc2f9ff))));
                 VelocityUtils.sendPlayer(player, String.valueOf(Lobby.getInstance().getConfig().get("survival_server")));
+                player.closeInventory();
             }
             else if (Objects.equals(event.getCurrentItem().getItemMeta().displayName(), Component.text("Spawn").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false).decorate(TextDecoration.BOLD)))
             {
@@ -133,8 +163,11 @@ public final class PlayerInteractListener<T extends Service> implements Listener
         }
         else if (event.getView().getTitle().equals(LOBBY_SWITCHER_INVENTORY_TITLE))
         {
+            if (event.getCurrentItem().getType() != Material.PLAYER_HEAD && !event.getCurrentItem().getItemMeta().hasLocalizedName()) return;
+            event.setCancelled(true);
             player.sendMessage(Component.text("§8[§e*§8] ").append(Component.text("Connecting to ").append(Component.text(event.getCurrentItem().getItemMeta().getDisplayName()).color(TextColor.color(NamedTextColor.AQUA)).append(Component.text("...").color(TextColor.color(NamedTextColor.GRAY))))));
-            VelocityUtils.sendPlayer(player, event.getCurrentItem().getItemMeta().getDisplayName());
+            VelocityUtils.sendPlayer(player, event.getCurrentItem().getItemMeta().getLocalizedName());
+            player.closeInventory();
         }
     }
 }
