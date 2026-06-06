@@ -123,8 +123,8 @@ public final class PlayerInteractListener<T extends Service> implements Listener
                 meta.displayName(Component.text(lobbyService.getName()).decoration(TextDecoration.ITALIC, false));
                 meta.lore(List.of(
                         Component.text(""),
-                        Component.text("➜ ").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false)
-                                .append(Component.text(isCurrent ? "You are here!" : "Click to join").color(TextColor.color(0xFFFF00)))
+                        Component.text("➜ ").color(NamedTextColor.GRAY).decoration(TextDecoration.BOLD, isCurrent).decoration(TextDecoration.ITALIC, false)
+                                .append(Component.text(isCurrent ? "You are here!" : "Click to join").color(TextColor.color(isCurrent ? 0x32A852 : 0xFFFF00)))
                 ));
 
                 lobbyItem.setItemMeta(meta);
