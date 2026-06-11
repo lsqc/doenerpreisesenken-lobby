@@ -65,7 +65,7 @@ public final class PlayerJoinQuitListener implements Listener
             .append(Component.text(Lobby.getInstance().getServerProperties() != null ? Lobby.getInstance().getServerProperties().getProperty("server-name") : "unknown-lobby").color(NamedTextColor.YELLOW)
             .append(Component.text(" - ").color(NamedTextColor.DARK_GRAY)));
 
-        var footer = Component.text("---").color(NamedTextColor.DARK_GRAY);
+        var footer = Component.text("---").color(NamedTextColor.DARK_GRAY).decoration(TextDecoration.STRIKETHROUGH, true);
 
         player.sendPlayerListHeaderAndFooter(header, footer);
 
