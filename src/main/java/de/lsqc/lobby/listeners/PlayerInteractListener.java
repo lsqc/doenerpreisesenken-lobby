@@ -1,6 +1,5 @@
 package de.lsqc.lobby.listeners;
 
-import java.io.FileInputStream;
 import java.util.*;
 
 import com.lsdevcloud.cloud.api.core.CloudAPI;
@@ -31,7 +30,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.inventory.meta.SkullMeta;
 
-public final class PlayerInteractListener<T extends Service> implements Listener
+public final class PlayerInteractListener implements Listener
 {
 
     public static final String NAVIGATION_INVENTORY_TITLE = "Navigation";
@@ -98,15 +97,10 @@ public final class PlayerInteractListener<T extends Service> implements Listener
 
             Collections.sort(lobbyServices, (a,b) -> a.getId() - b.getId());
 
-            Properties props = new Properties();
-            try (FileInputStream fis = new FileInputStream("server.properties")) {
-                props.load(fis);
-            }
-
             for (int i = 0; i < lobbyServices.size(); i++)
             {
                 var lobbyService = lobbyServices.get(i);
-                var isCurrent = props.getProperty("server-name").equals(lobbyService.getName());
+                var isCurrent = Lobby.getInstance().getServerProperties().getProperty("server-name").equals(lobbyService.getName());
 
                 ItemStack lobbyItem;
                 ItemMeta meta;

@@ -1,6 +1,8 @@
 package de.lsqc.lobby;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -14,6 +16,7 @@ import de.lsqc.lobby.listeners.PlayerJoinQuitListener;
 import de.lsqc.lobby.listeners.PlayerProtectionListener;
 import de.lsqc.lobby.listeners.WorldProtectionListener;
 import de.lsqc.lobby.utils.LocationManager;
+
 import lombok.Getter;
 import lombok.SneakyThrows;
 
@@ -29,6 +32,9 @@ public final class Lobby extends JavaPlugin
     private YamlConfiguration config;
 
     private File configFile, locationsFile;
+
+    @Getter
+    private Properties serverProperties = new Properties();
 
     @Override @SneakyThrows
     public void onEnable()
@@ -50,6 +56,10 @@ public final class Lobby extends JavaPlugin
         this.locationManager = new LocationManager(this.locationsFile);
         this.locationManager.loadConfig();
 
+        try (FileInputStream fis = new FileInputStream("server.properties"))
+        {
+            serverProperties.load(fis);
+        }
     }
 
     @Override

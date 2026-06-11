@@ -1,14 +1,12 @@
 package de.lsqc.lobby.listeners;
 
 import java.util.Calendar;
-import java.util.List;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,7 +14,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.Nullable;
 
 import de.lsqc.lobby.Lobby;
 import lombok.NonNull;
@@ -24,9 +21,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 
 public final class PlayerJoinQuitListener implements Listener
 {
@@ -66,6 +60,14 @@ public final class PlayerJoinQuitListener implements Listener
 
         player.getInventory().setHeldItemSlot(4);
         player.getInventory().setItem(4, randomNavigatorItem());
+
+        var header = Component.text(" - ").color(NamedTextColor.DARK_GRAY)
+            .append(Component.text(Lobby.getInstance().getServerProperties() != null ? Lobby.getInstance().getServerProperties().getProperty("server-name") : "unknown-lobby").color(NamedTextColor.YELLOW)
+            .append(Component.text(" - ").color(NamedTextColor.DARK_GRAY)));
+
+        var footer = Component.text("---").color(NamedTextColor.DARK_GRAY);
+
+        player.sendPlayerListHeaderAndFooter(header, footer);
 
         ItemStack lobbySwitcher = new ItemStack(Material.CHEST_MINECART);
         ItemMeta meta = lobbySwitcher.getItemMeta();
